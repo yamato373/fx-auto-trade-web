@@ -1,0 +1,53 @@
+<configuration>
+
+	<property name="LOG_DIR" value="./log" />
+	<property name="PATTERN" value="%date %level [%thread] %logger{10} %msg%n" />
+	<property name="FIX_MSG_PATTERN" value="%date %msg%n" />
+	<property name="MAX_HISTORY" value="30" />
+
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="APP_FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_DIR}/app.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_DIR}/app.%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+			<maxHistory>${MAX_HISTORY}</maxHistory>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="APP" class="ch.qos.logback.classic.AsyncAppender">
+		<appender-ref ref="APP_FILE" />
+	</appender>
+
+	<springProfile name="hon">
+		<root level="info">
+			<appender-ref ref="APP" />
+		</root>
+	</springProfile>
+
+	<springProfile name="demo">
+		<logger name="jp.yamato373" level="debug" />
+		<root level="info">
+			<appender-ref ref="APP" />
+		</root>
+	</springProfile>
+
+	<springProfile name="local">
+		<logger name="jp.yamato373" level="debug" />
+		<root level="info">
+			<appender-ref ref="APP" />
+			<appender-ref ref="CONSOLE" />
+		</root>
+	</springProfile>
+
+</configuration>

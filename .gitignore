@@ -1,0 +1,7 @@
+.settings/
+.springBeans
+.factorypath
+.classpath
+target/*
+log/*
+config/application_*.yml
