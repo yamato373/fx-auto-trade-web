@@ -1,4 +1,4 @@
-package jp.yamato373.web.app.controller;
+package jp.yamato373.web.app.controller.rest;
 
 import java.math.BigDecimal;
 import java.util.Calendar;

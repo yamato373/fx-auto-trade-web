@@ -17,4 +17,6 @@ public interface PositionRepository extends JpaRepository<Position, BigDecimal> 
 	Position findByAskClOrdId(Integer clOrdId);
 
 	Position findByBidClOrdId(Integer clOrdId);
+
+	long count();
 }

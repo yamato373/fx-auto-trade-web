@@ -30,6 +30,15 @@ public class AutoTradeService {
 	OrderResultService orderService;
 
 	/**
+	 * 保持しているポジション数
+	 *
+	 * @return int
+	 */
+	public long getPositionCount() {
+		return positionRepository.count();
+	}
+
+	/**
 	 * 保持しているポジションを全件取得
 	 *
 	 * @return Set<Position>

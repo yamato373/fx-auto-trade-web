@@ -1,6 +1,6 @@
 <configuration>
 
-	<property name="LOG_DIR" value="./log" />
+	<property name="LOG_DIR" value="/var/log/fx-auto-trade-web" />
 	<property name="PATTERN" value="%date %level [%thread] %logger{10} %msg%n" />
 	<property name="FIX_MSG_PATTERN" value="%date %msg%n" />
 	<property name="MAX_HISTORY" value="30" />
