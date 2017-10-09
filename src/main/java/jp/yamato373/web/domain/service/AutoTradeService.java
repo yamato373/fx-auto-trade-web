@@ -50,13 +50,24 @@ public class AutoTradeService {
 	}
 
 	/**
-	 * 決済したポジションを全件取得*
+	 * 決済したポジションを全件取得
 	 * @return List<PositionHistory>
 	 */
 	public List<PositionHistory> getAllPositionHistory() {
 		List<PositionHistory> list = positionHistoryRepository.findAll();
 		list.sort((a, b) -> a.getId().compareTo(b.getId()));
 		return list;
+	}
+
+	/**
+	 * 決済したポジションを日付を指定して取得
+	 *
+	 * @param from
+	 * @param to
+	 * @return List<PositionHistory>
+	 */
+	public List<PositionHistory> getPositionHistoryByDate(Date from, Date to) {
+		return positionHistoryRepository.findBySettlTime(from, to);
 	}
 
 	/**

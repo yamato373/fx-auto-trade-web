@@ -3,6 +3,7 @@ package jp.yamato373.web.app.controller.web;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -31,8 +32,8 @@ public class TopController {
 	@Autowired
 	OrderResultService orderResultService;
 
-	@RequestMapping(value="/", method = RequestMethod.GET)
-	public String index(Model model){
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String index(Model model) {
 		log.info("今日の利益Web実行。");
 
 		Date now = new Date();
@@ -42,14 +43,37 @@ public class TopController {
 		model.addAttribute("profitToday", profitToday);
 
 		// 昨日の利益取得
-		BigDecimal profitYesterday =  autoTradeService.getProfitByDate(
+		BigDecimal profitYesterday = autoTradeService.getProfitByDate(
 				DateUtils.truncate(DateUtils.addDays(now, -1), Calendar.DAY_OF_MONTH),
 				DateUtils.truncate(now, Calendar.DAY_OF_MONTH));
 		model.addAttribute("profitYesterday", profitYesterday);
 
-		// 今日の利確リスト取得
-		List<PositionHistory> positionHistoryList = autoTradeService.getAllPositionHistory();
-		model.addAttribute("positionHistoryList", positionHistoryList);
+		// 今日の利確リスト取得 TODO クエリ一発で取得できるようにする
+		List<PositionHistory> positionHistoryList = autoTradeService
+				.getPositionHistoryByDate(DateUtils.truncate(now, Calendar.DAY_OF_MONTH), now);
+		List<TradeResultDto> tradeResultDtoList = new ArrayList<>();
+		positionHistoryList.stream().sorted(Comparator.comparing(PositionHistory::getSettlTime)).forEach(ph -> {
+			BigDecimal buyPx = orderResultService.getOrderResult(ph.getAskClOrdId()).getLastPx();
+			BigDecimal sellPx = orderResultService.getOrderResult(ph.getBidClOrdId()).getLastPx();
+			BigDecimal profit = sellPx.subtract(buyPx).multiply(BigDecimal.valueOf(100));
+			tradeResultDtoList.add(new TradeResultDto(ph.getTrapPx(), buyPx, sellPx, profit, ph.getSettlTime()));
+		});
+		model.addAttribute("tradeResultDtoList", tradeResultDtoList);
+
+		// 今日の利確リスト取得 TODO クエリ一発で取得できるようにする
+		List<PositionHistory> positionHistoryYesterdayList = autoTradeService.getPositionHistoryByDate(
+				DateUtils.truncate(DateUtils.addDays(now, -1), Calendar.DAY_OF_MONTH),
+				DateUtils.truncate(now, Calendar.DAY_OF_MONTH));
+		List<TradeResultDto> tradeResultDtoYesterdayList = new ArrayList<>();
+		positionHistoryYesterdayList.stream().sorted(Comparator.comparing(PositionHistory::getSettlTime))
+				.forEach(ph -> {
+					BigDecimal buyPx = orderResultService.getOrderResult(ph.getAskClOrdId()).getLastPx();
+					BigDecimal sellPx = orderResultService.getOrderResult(ph.getBidClOrdId()).getLastPx();
+					BigDecimal profit = sellPx.subtract(buyPx).multiply(BigDecimal.valueOf(100));
+					tradeResultDtoYesterdayList
+							.add(new TradeResultDto(ph.getTrapPx(), buyPx, sellPx, profit, ph.getSettlTime()));
+				});
+		model.addAttribute("tradeResultDtoYesterdayList", tradeResultDtoYesterdayList);
 
 		// ポジション数取得
 		long positionCount = autoTradeService.getPositionCount();
@@ -60,8 +84,8 @@ public class TopController {
 		autoTradeService.getAllPosition().forEach(p -> {
 			String range = p.getTrapPx().toString() + "以下";
 			OrderResult orderResult = orderResultService.getOrderResult(p.getAskClOrdId());
-			PositionDto dto = new PositionDto(range, orderResult.getPrice(), orderResult.getLastPx(), orderResult.getExecTime());
-			positionDtoList.add(dto);
+			positionDtoList.add(
+					new PositionDto(range, orderResult.getPrice(), orderResult.getLastPx(), orderResult.getExecTime()));
 		});
 		model.addAttribute("positionDtoList", positionDtoList);
 
@@ -70,7 +94,17 @@ public class TopController {
 
 	@AllArgsConstructor
 	@Getter
-	public static class PositionDto{
+	public static class TradeResultDto {
+		private final BigDecimal range;
+		private final BigDecimal buyPx;
+		private final BigDecimal sellPx;
+		private final BigDecimal profit;
+		private final Date execTime;
+	}
+
+	@AllArgsConstructor
+	@Getter
+	public static class PositionDto {
 		private final String range;
 		private final BigDecimal orderPx;
 		private final BigDecimal fillPx;

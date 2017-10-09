@@ -8,39 +8,57 @@
 <body>
 <h1>トラリピ - TOP</h1>
 
-<h2>利益</h2>
-<p>今日： <span th:text="${profitToday}"></span>円</p>
-<p>昨日： <span th:text="${profitYesterday}"></span>円</p>
-
-<!--
-<h2>取引</h2>
-<table class="table">
-	<thead>
+<h2>今日の決済取引 (利益: <span th:text="${profitToday}"></span>円)</h2>
+<table class="table table-striped">
+	<thead class="thead-inverse">
 		<tr>
 			<th>#</th>
 			<th>レンジ</th>
-			<th>買い注文番号</th>
-			<th>売り注文番号</th>
+			<th>買い価格</th>
+			<th>売り価格</th>
+			<th>利益</th>
 			<th>決済日時</th>
 		</tr>
 	</thead>
 	<tbody>
-		<tr th:each="positionHistory:${positionHistoryList}">
-			<th scope="row"></th>
-			<td th:text="${positionHistory.trapPx}"></td>
-			<td th:text="${positionHistory.trapPx}"></td>
-			<td th:text="${positionHistory.askClOrdId}"></td>
-			<td th:text="${positionHistory.bidClOrdId}"></td>
-			<td th:text="${positionHistory.settlTime}"></td>
+		<tr th:each="tradeResultDto,iterStat:${tradeResultDtoList}">
+			<th scope="row" th:text="${iterStat.count}"></th>
+			<td th:text="${tradeResultDto.range}"></td>
+			<td th:text="${tradeResultDto.buyPx}"></td>
+			<td th:text="${tradeResultDto.sellPx}"></td>
+			<td th:text="${tradeResultDto.profit}"></td>
+			<td th:text="${tradeResultDto.execTime}"></td>
 		</tr>
 	</tbody>
 </table>
- -->
+<h2>昨日の決済取引 (利益: <span th:text="${profitYesterday}"></span>円)</h2>
+<table class="table table-striped">
+	<thead class="thead-inverse">
+		<tr>
+			<th>#</th>
+			<th>レンジ</th>
+			<th>買い価格</th>
+			<th>売り価格</th>
+			<th>利益</th>
+			<th>決済日時</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr th:each="tradeResultDto,iterStat:${tradeResultDtoYesterdayList}">
+			<th scope="row" th:text="${iterStat.count}"></th>
+			<td th:text="${tradeResultDto.range}"></td>
+			<td th:text="${tradeResultDto.buyPx}"></td>
+			<td th:text="${tradeResultDto.sellPx}"></td>
+			<td th:text="${tradeResultDto.profit}"></td>
+			<td th:text="${tradeResultDto.execTime}"></td>
+		</tr>
+	</tbody>
+</table>
 
-<h2>ポジション</h2>
-<p>ポジション数： <span th:text="${positionCount}"></span></p>
-<table class="table">
-	<thead>
+
+<h2>保有ポジション (合計: <span th:text="${positionCount}"></span>)</h2>
+<table class="table table-striped">
+	<thead class="thead-inverse">
 		<tr>
 			<th>レンジ</th>
 			<th>注文価格</th>
@@ -50,7 +68,7 @@
 	</thead>
 	<thead>
 		<tr th:each="position:${positionDtoList}">
-			<td th:text="${position.range}"></td>
+			<th th:text="${position.range}"></th>
 			<td th:text="${position.orderPx}"></td>
 			<td th:text="${position.fillPx}"></td>
 			<td th:text="${position.execTime}"></td>
